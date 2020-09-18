@@ -33,19 +33,7 @@
   var setBgColor = function setBgColor(color) {
     if (currentBgColor !== color) {
       currentBgColor = color;
-      var css = 'html { background: ' + currentBgColor + '; }';
-
-      if (!styleTag) {
-        styleTag = document.createElement('style');
-        var head = document.head || document.getElementsByTagName('head')[0];
-        head.appendChild(styleTag);
-      }
-
-      if (styleTag.styleSheet) {
-        styleTag.styleSheet.cssText = css;
-      } else {
-        styleTag.innerHTML = css;
-      }
+      document.documentElement.style.backgroundColor = color;
     }
   };
 
@@ -57,14 +45,18 @@
   var checkScroll = function checkScroll() {
     lastScrollY = window.scrollY;
     if (!ticking && (topColor || bottomColor)) {
-      requestAnimFrame(function () {
-        var scrollHeight = document.body.scrollHeight;
-        var innerHeight = window.innerHeight;
-        if (scrollHeight === innerHeight) {
+      var scrollHeight = document.body.scrollHeight;
+      var innerHeight = window.innerHeight;
+
+      requestAnimFrame(() => {
+        if (lastScrollY > 0) {
           setBgColor(bottomColor);
-        } else {
-          setBgColor(innerHeight - scrollHeight + 2 * lastScrollY < 0 ? topColor : bottomColor);
         }
+
+        if (innerHeight - scrollHeight + 2 * lastScrollY < 0) {
+          setBgColor(topColor);
+        }
+
         ticking = false;
       });
       ticking = true;
@@ -109,7 +101,13 @@
     if (bodyComputedBackground === '' || bodyComputedStyle.getPropertyValue('background-color') === 'rgba(0, 0, 0, 0)' && bodyComputedBackground.substring(21, 17) === 'none') {
       bodyComputedBackground = 'white';
     }
-    document.body.style.background = 'transparent';
+
+    var scrollHeight = document.body.scrollHeight;
+    var innerHeight = window.innerHeight;
+
+    if (scrollHeight === innerHeight) {
+      setBgColor(topColor);
+    }
 
     checkScroll();
   };
