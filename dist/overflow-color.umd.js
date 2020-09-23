@@ -8,10 +8,7 @@
 
   var topColor = void 0;
   var bottomColor = void 0;
-
   var currentBgColor = void 0;
-  var styleTag = void 0;
-
   var lastScrollY = void 0;
   var ticking = false;
 
@@ -30,6 +27,11 @@
    * html background
    * @param {string} color
    */
+
+  /**
+   * It makes sense to apply background-color to the root element of the page in this way,
+   * because we want it to flood the whole viewport and change it fast on scrolling.
+   */
   var setBgColor = function setBgColor(color) {
     if (currentBgColor !== color) {
       currentBgColor = color;
@@ -40,7 +42,9 @@
   /**
    * Checks the scroll position and determines
    * the overflow color to set between the
-   * topColor and the bottomColor
+   * topColor and the bottomColor.
+   * In order to get rid of the flickers while scrolling up and down too fast on the page without scrolling,
+   * we set appropriate background color as soon as scroll starts moving.
    */
   var checkScroll = function checkScroll() {
     lastScrollY = window.scrollY;
@@ -101,6 +105,12 @@
     if (bodyComputedBackground === '' || bodyComputedStyle.getPropertyValue('background-color') === 'rgba(0, 0, 0, 0)' && bodyComputedBackground.substring(21, 17) === 'none') {
       bodyComputedBackground = 'white';
     }
+
+    /**
+     * This made just for reliability. We set background-color to bottomColor while scrolling down,
+     * and when we don't scroll or there is no scroll at all,
+     * we apply topColor so that each color ends up in the right place.
+     */
 
     var scrollHeight = document.body.scrollHeight;
     var innerHeight = window.innerHeight;
