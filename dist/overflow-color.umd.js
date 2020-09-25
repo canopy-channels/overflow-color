@@ -63,7 +63,7 @@
   var splitBgColor = () => {
     var css = 'html { background: ' + topColor + ';' + 
     'background: ' + '-webkit-linear-gradient(0deg, ' + topColor + ' 50%, ' + bottomColor + ' 50%);' + 
-    'background: ' + 'linear-gradient(0deg, ' + topColor + ' 50%, ' + bottomColor + ' 50%);';
+    'background: ' + 'linear-gradient(0deg, ' + topColor + ' 50%, ' + bottomColor + ' 50%); }';
     setStyleTag(css);
   }
 
