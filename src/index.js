@@ -29,10 +29,22 @@ const requestAnimFrame = (() => {
  * html background
  * @param {string} color
  */
-const setBgColor = (color) => {
+const setBgColor = color => {
   if (currentBgColor !== color) {
     currentBgColor = color;
-    document.documentElement.style.backgroundColor = color;
+    const css = `html { background: ${currentBgColor}; }`;
+
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      const head = document.head || document.getElementsByTagName('head')[0];
+      head.appendChild(styleTag);
+    }
+
+    if (styleTag.styleSheet) {
+      styleTag.styleSheet.cssText = css;
+    } else {
+      styleTag.innerHTML = css;
+    }
   }
 };
 
@@ -44,18 +56,14 @@ const setBgColor = (color) => {
 const checkScroll = () => {
   lastScrollY = window.scrollY;
   if (!ticking && (topColor || bottomColor)) {
-    const { scrollHeight } = document.body;
-    const { innerHeight } = window;
-    
     requestAnimFrame(() => {
-      if (lastScrollY > 0) {
+      const scrollHeight = document.body.scrollHeight;
+      const innerHeight = window.innerHeight;
+      if (scrollHeight === innerHeight) {
         setBgColor(bottomColor);
+      } else {
+        setBgColor(innerHeight - scrollHeight + 2 * lastScrollY < 0 ? topColor : bottomColor);
       }
-
-      if (innerHeight - scrollHeight + 2 * lastScrollY < 0) {
-        setBgColor(topColor);
-      }
-
       ticking = false;
     });
     ticking = true;
@@ -103,14 +111,8 @@ const updateOverflowColor = () => {
   ) {
     bodyComputedBackground = 'white';
   }
-  
-  const { scrollHeight } = document.body;
-  const { innerHeight } = window;
-  
-  if (scrollHeight === innerHeight) {
-    setBgColor(topColor);
-  }
-  
+  document.body.style.background = 'transparent';
+
   checkScroll();
 };
 

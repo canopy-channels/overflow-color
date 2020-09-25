@@ -8,7 +8,10 @@
 
   var topColor = void 0;
   var bottomColor = void 0;
+
   var currentBgColor = void 0;
+  var styleTag = void 0;
+
   var lastScrollY = void 0;
   var ticking = false;
 
@@ -23,44 +26,63 @@
   }();
 
   /**
+  * @param {string} style
+  */
+
+  var setStyleTag = (style) => {
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      var head = document.head || document.getElementsByTagName('head')[0];
+      head.appendChild(styleTag);
+    }
+    
+    if (styleTag.styleSheet) {
+      styleTag.styleSheet.cssText = style;
+    } else {
+      styleTag.innerHTML = style;
+    }
+  }
+
+  /**
    * If needed, set the new new color as
    * html background
    * @param {string} color
    */
-
-  /**
-   * It makes sense to apply background-color to the root element of the page in this way,
-   * because we want it to flood the whole viewport and change it fast on scrolling.
-   */
   var setBgColor = function setBgColor(color) {
     if (currentBgColor !== color) {
       currentBgColor = color;
-      document.documentElement.style.backgroundColor = color;
+      var css = 'html { background: ' + currentBgColor + '; }';
+
+      setStyleTag(css);
     }
   };
 
   /**
+   * Split background in two colors on pages without scroll
+   */
+  var splitBgColor = () => {
+    var css = 'html { background: ' + topColor + ';' + 
+    'background: ' + '-webkit-linear-gradient(0deg, ' + topColor + ' 50%, ' + bottomColor + ' 50%);' + 
+    'background: ' + 'linear-gradient(0deg, ' + topColor + ' 50%, ' + bottomColor + ' 50%);';
+    setStyleTag(css);
+  }
+
+  /**
    * Checks the scroll position and determines
    * the overflow color to set between the
-   * topColor and the bottomColor.
-   * In order to get rid of the flickers while scrolling up and down too fast on the page without scrolling,
-   * we set appropriate background color as soon as scroll starts moving.
+   * topColor and the bottomColor
    */
   var checkScroll = function checkScroll() {
     lastScrollY = window.scrollY;
     if (!ticking && (topColor || bottomColor)) {
-      var scrollHeight = document.body.scrollHeight;
-      var innerHeight = window.innerHeight;
-
-      requestAnimFrame(() => {
-        if (lastScrollY > 0) {
-          setBgColor(bottomColor);
+      requestAnimFrame(function () {
+        var scrollHeight = document.body.scrollHeight;
+        var innerHeight = window.innerHeight;
+        if (innerHeight === scrollHeight) {
+          splitBgColor();
+        } else {
+          setBgColor(innerHeight - scrollHeight + 2 * lastScrollY < 0 ? topColor : bottomColor);
         }
-
-        if (innerHeight - scrollHeight + 2 * lastScrollY < 0) {
-          setBgColor(topColor);
-        }
-
         ticking = false;
       });
       ticking = true;
@@ -105,19 +127,7 @@
     if (bodyComputedBackground === '' || bodyComputedStyle.getPropertyValue('background-color') === 'rgba(0, 0, 0, 0)' && bodyComputedBackground.substring(21, 17) === 'none') {
       bodyComputedBackground = 'white';
     }
-
-    /**
-     * This made just for reliability. We set background-color to bottomColor while scrolling down,
-     * and when we don't scroll or there is no scroll at all,
-     * we apply topColor so that each color ends up in the right place.
-     */
-
-    var scrollHeight = document.body.scrollHeight;
-    var innerHeight = window.innerHeight;
-
-    if (scrollHeight === innerHeight) {
-      setBgColor(topColor);
-    }
+    document.body.style.background = 'transparent';
 
     checkScroll();
   };
