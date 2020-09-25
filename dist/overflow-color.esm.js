@@ -54,11 +54,9 @@ var checkScroll = function checkScroll() {
     requestAnimFrame(function () {
       var scrollHeight = document.body.scrollHeight;
       var innerHeight = window.innerHeight;
-      if (scrollHeight === innerHeight) {
-        setBgColor(bottomColor);
-      } else {
-        setBgColor(innerHeight - scrollHeight + 2 * lastScrollY < 0 ? topColor : bottomColor);
-      }
+
+      setBgColor(innerHeight - scrollHeight + 2 * lastScrollY > 0 ? bottomColor : topColor);
+
       ticking = false;
     });
     ticking = true;
