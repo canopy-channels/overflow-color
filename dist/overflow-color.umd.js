@@ -26,24 +26,6 @@
   }();
 
   /**
-  * @param {string} style
-  */
-
-  var setStyleTag = (style) => {
-    if (!styleTag) {
-      styleTag = document.createElement('style');
-      var head = document.head || document.getElementsByTagName('head')[0];
-      head.appendChild(styleTag);
-    }
-    
-    if (styleTag.styleSheet) {
-      styleTag.styleSheet.cssText = style;
-    } else {
-      styleTag.innerHTML = style;
-    }
-  }
-
-  /**
    * If needed, set the new new color as
    * html background
    * @param {string} color
@@ -53,19 +35,19 @@
       currentBgColor = color;
       var css = 'html { background: ' + currentBgColor + '; }';
 
-      setStyleTag(css);
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        var head = document.head || document.getElementsByTagName('head')[0];
+        head.appendChild(styleTag);
+      }
+      
+      if (styleTag.styleSheet) {
+        styleTag.styleSheet.cssText = css;
+      } else {
+        styleTag.innerHTML = css;
+      }
     }
   };
-
-  /**
-   * Split background in two colors on pages without scroll
-   */
-  var splitBgColor = () => {
-    var css = 'html { background: ' + topColor + ';' + 
-    'background: ' + '-webkit-linear-gradient(0deg, ' + topColor + ' 50%, ' + bottomColor + ' 50%);' + 
-    'background: ' + 'linear-gradient(0deg, ' + topColor + ' 50%, ' + bottomColor + ' 50%); }';
-    setStyleTag(css);
-  }
 
   /**
    * Checks the scroll position and determines
@@ -78,11 +60,9 @@
       requestAnimFrame(function () {
         var scrollHeight = document.body.scrollHeight;
         var innerHeight = window.innerHeight;
-        if (innerHeight === scrollHeight) {
-          splitBgColor();
-        } else {
-          setBgColor(innerHeight - scrollHeight + 2 * lastScrollY < 0 ? topColor : bottomColor);
-        }
+
+        setBgColor(innerHeight - scrollHeight + 2 * lastScrollY > 0 ? bottomColor : topColor);
+
         ticking = false;
       });
       ticking = true;
