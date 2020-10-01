@@ -55,6 +55,8 @@ var checkScroll = function checkScroll() {
       var scrollHeight = document.body.scrollHeight;
       var innerHeight = window.innerHeight;
 
+      // If we're more than halfway down the page, use the bottom color. Otherwise,
+      // use the top color.
       setBgColor(innerHeight - scrollHeight + 2 * lastScrollY > 0 ? bottomColor : topColor);
 
       ticking = false;
