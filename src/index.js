@@ -59,11 +59,9 @@ const checkScroll = () => {
     requestAnimFrame(() => {
       const scrollHeight = document.body.scrollHeight;
       const innerHeight = window.innerHeight;
-      if (scrollHeight === innerHeight) {
-        setBgColor(bottomColor);
-      } else {
-        setBgColor(innerHeight - scrollHeight + 2 * lastScrollY < 0 ? topColor : bottomColor);
-      }
+      
+      setBgColor(innerHeight - scrollHeight + 2 * lastScrollY > 0 ? bottomColor : topColor);
+
       ticking = false;
     });
     ticking = true;
